@@ -25,11 +25,15 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Add authentication header
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Authentication");
-
   next();
 });
+
+app.get("/",(req,res)=>{
+  res.send("This is delivermoo api on google app engine, use express and mongodb.")
+})
 
 // Routes which should handle requests
 app.use("/item", itemRoutes);
