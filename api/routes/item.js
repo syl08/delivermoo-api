@@ -1,58 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const Item = require("../models/item");
+
 const checkAuth = require("../middlewares/authorization");
+const ItemController = require("../controllers/item");
 
-router.get("/:id", (req, res) => {
-  Item.findOne({ _id: req.params.id })
-    .select("_id type color size stock")
-    .exec()
-    .then(result => {
-      if (result) {
-        res.json({ success: true, item: result });
-      } else {
-        res
-          .status(404)
-          .json({ success: false, message: "Item could not be found" });
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res
-        .status(500)
-        .json({ success: false, message: "Item could not be found" });
-    });
-});
+router.get("/:id", ItemController.item_get_by_id);
 
-router.patch("/:id", checkAuth, (req, res) => {
-  Item.findByIdAndUpdate({ _id: req.params.id }, { stock: req.body.stock })
-    .exec()
-    .then(result => {
-      if (result) {
-        res.json({ success: true });
-      } else {
-        res.json({ success: false, message: "Item could not be found" });
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ err });
-    });
-});
+router.patch("/:id", checkAuth, ItemController.item_update_by_id);
 
-router.delete("/:id", checkAuth, (req, res) => {
-  Item.findByIdAndRemove({ _id: req.params.id })
-    .exec()
-    .then(result => {
-      if (result) {
-        res.json({ success: true });
-      } else {
-        res.json({ success: false, message: "Item could not be found" });
-      }
-    })
-    .catch(err => {
-      res.json(err);
-    });
-});
+router.delete("/:id", checkAuth, ItemController.item_delete_by_id);
 
 module.exports = router;
