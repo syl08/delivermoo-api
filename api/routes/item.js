@@ -10,4 +10,8 @@ router.patch("/:id", checkAuth, ItemController.item_update_by_id);
 
 router.delete("/:id", checkAuth, ItemController.item_delete_by_id);
 
+router.post("/", checkAuth, ItemController.items_create);
+
+router.get("/", ItemController.items_get_all);
+
 module.exports = router;

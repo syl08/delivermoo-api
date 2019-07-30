@@ -6,9 +6,9 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const itemRoutes = require("./api/routes/item");
-const itemsRoutes = require("./api/routes/items");
+const itemsRoutes = require("./api/routes/item");
 const orderRoutes = require("./api/routes/order");
-const ordersRoutes = require("./api/routes/orders");
+const ordersRoutes = require("./api/routes/order");
 
 const port = process.env.PORT || 3000;
 
@@ -31,9 +31,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/",(req,res)=>{
-  res.send("This is delivermoo api on google app engine, use express and mongodb.")
-})
+app.get("/", (req, res) => {
+  res.send(
+    "This is delivermoo api on google app engine, use express and mongodb."
+  );
+});
 
 // Routes which should handle requests
 app.use("/item", itemRoutes);

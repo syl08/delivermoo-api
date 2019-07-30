@@ -5,18 +5,18 @@ const Item = require("../models/item");
 // Read item by id
 exports.item_get_by_id = async (req, res) => {
   try {
-    const item = await Item.findOne({ _id: req.params.id }).select(
-      "_id type color size stock"
+    const item = await Item.findById(req.params.id).select(
+      "type color size stock"
     );
     if (item) {
-      return res.json({ success: true, item });
+      return res.status(200).json({ success: true, item });
     } else {
       return res
         .status(404)
         .json({ success: false, message: "Item could not be found" });
     }
   } catch (err) {
-    res.status.json({ message: err.message });
+    res.status.json({ success: false, message: err.message });
   }
 };
 
@@ -28,45 +28,46 @@ exports.item_update_by_id = async (req, res) => {
         .status(400)
         .json({ success: false, messsage: "Invalid request" });
     }
-    const item = await Item.findByIdAndUpdate(
-      { _id: req.params.id },
-      { stock: req.body.stock }
-    );
+    const item = await Item.findByIdAndUpdate(req.params.id, {
+      stock: req.body.stock
+    });
     if (item) {
-      return res.json({ success: true });
+      return res.status(200).json({ success: true });
     } else {
       return res
         .status(404)
         .json({ success: false, message: "Item could not be found" });
     }
   } catch (err) {
-    res.status.json({ message: err.message });
+    res.status.json({ success: false, message: err.message });
   }
 };
 
 // Delete item by id
 exports.item_delete_by_id = async (req, res) => {
   try {
-    const item = await Item.findByIdAndRemove({ _id: req.params.id });
+    const item = await Item.findByIdAndRemove(req.params.id);
     if (item) {
-      return res.json({ success: true });
+      return res.status(200).json({ success: true });
     } else {
-      return res.json({ success: false, message: "Item could not be found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item could not be found" });
     }
   } catch (err) {
-    res.status.json({ message: err.message });
+    res.status.json({ success: false, message: err.message });
   }
 };
 
 // Create new items. If the item already exists then increase its quantity.
 exports.items_create = async (req, res) => {
-  const itemList = req.body.items;
   // Validate req.body
   if (!req.body.items) {
     return res
       .status(400)
       .json({ success: false, messsage: "Invalid request" });
   } else {
+    const itemList = req.body.items;
     for (const v of itemList) {
       if (
         !v.type ||
@@ -107,9 +108,9 @@ exports.items_create = async (req, res) => {
           await itemIds.push(item._id);
         }
       }
-      res.json({ success: true, itemIds });
+      res.status(200).json({ success: true, itemIds });
     } catch (err) {
-      res.json({ message: err.message });
+      res.json({ success: false, message: err.message });
     }
   }
 };
@@ -117,12 +118,12 @@ exports.items_create = async (req, res) => {
 // Get all items
 exports.items_get_all = async (req, res) => {
   try {
-    const items = await Item.find().select("id type color size stock");
-    res.json({
+    const items = await Item.find().select("type color size stock");
+    res.status(200).json({
       success: true,
       items: items
     });
   } catch (err) {
-    res.json({ message: err.message });
+    res.json({ success: false, message: err.message });
   }
 };
