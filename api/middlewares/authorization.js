@@ -10,6 +10,6 @@ module.exports = (req, res, next) => {
     }
     next();
   } catch (err) {
-    return res.status.json({ success: false, message: err.message });
+    return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 };

@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const Item = require("../models/item");
 
+const filter = { _id: 0, __v: 0 };
+
 // Read item by id
 exports.item_get_by_id = async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id).select(
-      "type color size stock"
-    );
+    const item = await Item.findOne({ id: req.params.id }, filter);
     if (item) {
-      return res.status(200).json({ success: true, item });
+      return res.json({ success: true, item });
     } else {
       return res
         .status(404)
@@ -28,11 +28,14 @@ exports.item_update_by_id = async (req, res) => {
         .status(400)
         .json({ success: false, messsage: "Invalid request" });
     }
-    const item = await Item.findByIdAndUpdate(req.params.id, {
-      stock: req.body.stock
-    });
+    const item = await Item.findOneAndUpdate(
+      { id: req.params.id },
+      {
+        stock: req.body.stock
+      }
+    );
     if (item) {
-      return res.status(200).json({ success: true });
+      return res.json({ success: true });
     } else {
       return res
         .status(404)
@@ -46,9 +49,9 @@ exports.item_update_by_id = async (req, res) => {
 // Delete item by id
 exports.item_delete_by_id = async (req, res) => {
   try {
-    const item = await Item.findByIdAndRemove(req.params.id);
+    const item = await Item.findOneAndDelete({ id: req.params.id });
     if (item) {
-      return res.status(200).json({ success: true });
+      return res.json({ success: true });
     } else {
       return res
         .status(404)
@@ -94,21 +97,21 @@ exports.items_create = async (req, res) => {
         // If the item exists, increase its quantity
         if (result) {
           await result.updateOne({ $inc: { stock: v.stock } });
-          await itemIds.push(result._id);
+          await itemIds.push(result.id);
         } else {
           // If the item not exists, add new item
           const item = new Item({
-            _id: mongoose.Types.ObjectId().toString(),
+            id: mongoose.Types.ObjectId().toString(),
             type: v.type,
             color: v.color,
             size: v.size,
             stock: v.stock
           });
           await item.save();
-          await itemIds.push(item._id);
+          await itemIds.push(item.id);
         }
       }
-      res.status(200).json({ success: true, itemIds });
+      res.json({ success: true, itemIds });
     } catch (err) {
       res.json({ success: false, message: err.message });
     }
@@ -118,8 +121,8 @@ exports.items_create = async (req, res) => {
 // Get all items
 exports.items_get_all = async (req, res) => {
   try {
-    const items = await Item.find().select("type color size stock");
-    res.status(200).json({
+    const items = await Item.find({}, filter);
+    res.json({
       success: true,
       items: items
     });

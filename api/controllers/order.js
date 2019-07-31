@@ -3,12 +3,14 @@ const mongoose = require("mongoose");
 const Order = require("../models/order");
 const Item = require("../models/item");
 
+const filter = { _id: 0, __v: 0 };
+
 // Get order by id
 exports.order_get_by_id = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).select("itemId quantity");
+    const order = await Order.findOne({ id: req.params.id }, filter);
     if (order) {
-      return res.status(200).json({ success: true, order });
+      return res.json({ success: true, order });
     } else {
       return res
         .status(404)
@@ -28,7 +30,7 @@ exports.create_order = async (req, res) => {
       .json({ success: false, messsage: "Invalid request" });
   }
   try {
-    const item = await Item.findById(req.body.itemId);
+    const item = await Item.findOne({ id: req.body.itemId });
     if (item) {
       // Check the item's stock
       if (item.stock < req.body.quantity) {
@@ -39,7 +41,7 @@ exports.create_order = async (req, res) => {
       } else {
         // If item found and have enough stock, then create new order
         const order = new Order({
-          _id: mongoose.Types.ObjectId().toString(),
+          id: mongoose.Types.ObjectId().toString(),
           itemId: req.body.itemId,
           quantity: req.body.quantity
         });
@@ -47,7 +49,7 @@ exports.create_order = async (req, res) => {
         res.status(201).json({
           success: true,
           order: {
-            _id: order._id,
+            id: order.id,
             itemId: order.itemId,
             quantity: order.quantity
           }
@@ -66,8 +68,8 @@ exports.create_order = async (req, res) => {
 // Get all orders
 exports.orders_get_all = async (req, res) => {
   try {
-    const orders = await Order.find().select("itemId quantity");
-    res.status(200).json({
+    const orders = await Order.find({}, filter);
+    res.json({
       success: true,
       orders
     });
